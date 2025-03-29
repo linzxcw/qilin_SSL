@@ -1,0 +1,9 @@
+
+# 反向代理配置文件 - qilin ssl
+[[host]]
+bind="https://192.168.0.116:5001/"
+tlscert="./cert/qilin ssl.crt"
+tlskey="./cert/qilin ssl.key"
+target="http://192.168.0.116:5000/"
+upstream="192.168.0.116:5000"
+timeout=3000

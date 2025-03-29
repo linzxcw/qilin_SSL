@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>登录 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #b3b6c3;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header h2 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #dcdde1;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .form-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-login:hover {
+            background-color: #2980b9;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="./static/images/qilinssl-logo.png" alt="logo" width="120" height="120" style="display: block; margin: 0 auto;">
+                <h2>qilin SSL</h2>
+                <p>自签证书管理系统</p>
+            </div>
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="error-message">{{ error if error }}</div>
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">记住我</label>
+                </div>
+                <button type="submit" class="btn-login">登录</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

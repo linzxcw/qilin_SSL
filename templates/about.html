@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>关于 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .about-container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .about-logo {
+            margin-bottom: 1.5rem;
+        }
+        .about-logo img {
+            width: 150px;
+            height: 150px;
+        }
+        .about-version {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        .about-description {
+            font-size: 1.1rem;
+            color: #34495e;
+            margin-bottom: 1.5rem;
+        }
+        .divider {
+            height: 1px;
+            background-color: #dcdde1;
+            margin: 1.5rem 0;
+        }
+        .about-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .about-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+        .about-links a:hover {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="padding-left: 10px;">
+            <img src="/static/images/qilinssl-logo.png" alt="logo" style="width: 50px; height: 50px;">
+            <h2>qilin SSL</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="icon-home"></i><span>主页</span></a></li>
+            <li><a href="/verify"><i class="icon-certificate"></i><span>证书验证</span></a></li>
+            <li><a href="/proxy"><i class="icon-exchange"></i><span>反向代理</span></a></li>
+            <li><a href="#"><i class="icon-book"></i><span>证书教程</span></a></li>
+            <li><a href="#" class="active"><i class="icon-info-circle"></i><span>关于</span></a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i><span>设置</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>注销</span></a></li>
+        </ul>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <div class="about-container">
+            <div class="about-logo">
+                <img src="{{ url_for('static', filename='images/qilinssl-logo.png') }}" alt="qilin SSL Logo">
+            </div>
+            <div class="about-version">
+                qilin SSL 版本：v1.0.1
+            </div>
+            <div class="about-description">
+                一款易用的自签证书管理系统
+            </div>
+            <div class="divider"></div>
+            <div class="about-links">
+                <a href="https://github.com/linzxcw" target="_blank">
+                    <i class="fab fa-github"></i> github主页：https://github.com/linzxcw
+                </a>
+                <a href="https://space.bilibili.com/351478349?spm_id_from=333.999.0.0" target="_blank">
+                    <i class="fab fa-bilibili"></i> B站视频教程：https://space.bilibili.com/351478349
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

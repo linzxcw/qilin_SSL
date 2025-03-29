@@ -1,0 +1,39 @@
+<!-- 创建证书的模态窗口 -->
+<div id="create-cert-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>新增证书</h2>
+        <form id="create-cert-form">
+            <div class="form-group">
+                <label for="cert_name">证书名称:</label>
+                <input type="text" id="cert_name" name="cert_name" required>
+            </div>
+            <div class="form-group">
+                <label for="ip_addresses">IP地址:</label>
+                <input type="text" id="ip_addresses" name="ip_addresses" placeholder="填内网IP地址，可输入多个，用;号隔开">
+            </div>
+            <div class="form-group">
+                <label for="domains">域名:</label>
+                <input type="text" id="domains" name="domains" placeholder="填域名地址，可输入多个，用;号隔开">
+            </div>
+            <div class="form-group">
+                <label for="cert_password">CA证书密码:</label>
+                <input type="password" id="cert_password" name="cert_password" placeholder="无密码可留空">
+                <small id="password-hint" class="form-text">正在检查CA证书是否需要密码...</small>
+            </div>
+            <button type="submit" class="btn btn-success">新增</button>
+            <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+        </form>
+    </div>
+</div>
+
+<!-- 提示需要先创建CA的模态窗口 -->
+<div id="need-ca-modal" class="modal">
+    <div class="modal-content">
+        <h2>提醒</h2>
+        <p>请先创建虚拟机构，后申请证书。</p>
+        <div class="modal-buttons">
+            <button class="btn btn-primary" id="need-ca-confirm-btn">确定</button>
+        </div>
+    </div>
+</div>

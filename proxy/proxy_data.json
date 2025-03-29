@@ -1,0 +1,44 @@
+[
+  {
+    "id": "alist",
+    "service_name": "alist",
+    "original_url": "http://192.168.0.116:5244",
+    "proxy_url": "https://192.168.0.116:5245",
+    "cert_type": "qilin",
+    "cert_id": "alist",
+    "cert_filename": null,
+    "key_filename": null,
+    "cert_expiry": "2035-03-26",
+    "created_at": "2025-03-28 11:20:43",
+    "pid": 57408,
+    "status": "on"
+  },
+  {
+    "id": "333",
+    "service_name": "333",
+    "original_url": "http://192.168.0.116:5005",
+    "proxy_url": "https://192.168.0.116:5006",
+    "cert_type": "qilin",
+    "cert_id": "alist",
+    "cert_filename": null,
+    "key_filename": null,
+    "cert_expiry": "2035-03-20",
+    "created_at": "2025-03-27 17:17:11",
+    "pid": 11204,
+    "status": "off"
+  },
+  {
+    "id": "222",
+    "service_name": "222",
+    "original_url": "http://192.168.0.116:3003",
+    "proxy_url": "https://192.168.0.116:3004",
+    "cert_type": "qilin",
+    "cert_id": "work-pc",
+    "cert_filename": null,
+    "key_filename": null,
+    "cert_expiry": "2035-03-18",
+    "created_at": "2025-03-27 17:29:44",
+    "pid": 19520,
+    "status": "off"
+  }
+]

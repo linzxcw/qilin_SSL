@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>主页 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="padding-left: 10px;">
+            <img src="/static/images/qilinssl-logo.png" alt="logo" style="width: 50px; height: 50px;">
+            <h2>qilin SSL</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/" class="active"><i class="icon-home"></i><span>主页</span></a></li>
+            <li><a href="/verify"><i class="icon-certificate"></i><span>证书验证</span></a></li>
+            <li><a href="/proxy"><i class="icon-exchange"></i><span>反向代理</span></a></li>
+            <li><a href="#"><i class="icon-book"></i><span>证书教程</span></a></li>
+            <li><a href="/about"><i class="icon-info-circle"></i><span>关于</span></a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i><span>设置</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>注销</span></a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content" id="home-content">
+        <h1>qilin SSL自签证书管理系统</h1>
+        
+        
+        <!-- 虚拟机构区域 -->
+        <div class="section-header">
+            <i class="fas fa-building"></i>
+            <h2>虚拟机构（证书颁发者）</h2>
+        </div>
+        
+        <div class="card">
+            <div class="card-actions">
+                <button class="btn btn-primary" id="create-ca-btn">创建</button>
+                <button class="btn btn-danger" id="delete-ca-btn">删除</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>机构名称</th>
+                            <th>有效期</th>
+                            <th>创建时间</th>
+                            <th>证书下载</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if ca_info %}
+                        <tr>
+                            <td>{{ ca_info.org_name }}</td>
+                            <td>{{ ca_info.valid_until }}</td>
+                            <td>{{ ca_info.created_at }}</td>
+                            <td><a href="{{ url_for('download', cert_dir='ca', filename='qilin-ca.crt') }}"><i class="fas fa-download"></i> 下载CA证书</a></td>
+                        </tr>
+                        {% else %}
+                        <tr class="empty-row">
+                            <td colspan="4">证书申请前需要创建虚拟机构，请点击左上角按钮创建</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 证书列表区域 -->
+        <div class="section-header">
+            <i class="fas fa-table"></i>
+            <h2>证书列表（证书申请者）</h2>
+        </div>
+        
+        <div class="card">
+            <div class="card-actions">
+                <button class="btn btn-success" id="create-cert-btn">新增</button>
+                <button class="btn btn-danger" id="delete-cert-btn">删除</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all-certs"></th>
+                            <th>证书名称</th>
+                            <th>有效期</th>
+                            <th>IP地址</th>
+                            <th>域名</th>
+                            <th>证书下载</th>
+                            <th>私钥下载</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="7">创建虚拟机构后，再点击新增按钮申请证书</td>
+    
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 创建CA的模态窗口 -->
+    <div id="create-ca-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>创建虚拟机构</h2>
+            <form id="create-ca-form">
+                <div class="form-group">
+                    <label for="org_name">机构名称:</label>
+                    <input type="text" id="org_name" name="org_name" placeholder="qilin SSL CA">
+                </div>
+                <div class="form-group">
+                    <label for="password">私钥密码 (可选):</label>
+                    <input type="password" id="password" name="password" placeholder="留空则不设置密码">
+                </div>
+                <button type="submit" class="btn btn-primary">创建</button>
+                <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加CSS样式 -->
+    <style>
+        /* 模态窗口样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+
+    <!-- 删除CA的模态窗口 -->
+    <div id="delete-ca-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>删除虚拟机构</h2>
+            <p>确定要删除当前虚拟机构吗？此操作不可恢复。</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" id="confirm-delete-btn">确认删除</button>
+                <button class="btn btn-secondary" id="cancel-delete-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除证书的模态窗口 -->
+    <div id="delete-cert-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>删除证书</h2>
+            <p>确定要删除选中的证书吗？此操作不可恢复。</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" id="confirm-delete-cert-btn">确认删除</button>
+                <button class="btn btn-secondary" id="cancel-delete-cert-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 已存在CA的提示模态窗口 -->
+    <div id="ca-exists-modal" class="modal">
+        <div class="modal-content">
+            <h2>提醒</h2>
+            <p>虚拟机构同一时间只能存在一个，请删除旧的虚拟机构后重试。</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="ca-exists-confirm-btn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript代码 -->
+    <script>
+        $(document).ready(function() {
+            // 侧边栏导航点击事件
+            $(".sidebar-menu a").click(function() {
+                // 更新活动状态
+                $(".sidebar-menu a").removeClass("active");
+                $(this).addClass("active");
+            });
+
+            // 创建CA按钮点击事件
+            $("#create-ca-btn").click(function() {
+                // 检查是否已存在CA证书
+                if ($(".data-table tbody tr").hasClass("empty-row")) {
+                    $("#create-ca-modal").css("display", "block");
+                } else {
+                    $("#ca-exists-modal").css("display", "block");
+                }
+            });
+            
+            // 新增证书按钮点击事件
+            $("#create-cert-btn").click(function() {
+                // 检查是否已存在CA证书
+                if ($(".data-table:eq(0) tbody tr").hasClass("empty-row")) {
+                    // 如果CA证书不存在，显示提示模态窗口
+                    $("#need-ca-modal").css("display", "block");
+                } else {
+                    // 如果CA证书存在，显示创建证书的模态窗口
+                    $("#create-cert-modal").css("display", "block");
+                    
+                    // 检查CA证书是否有密码保护
+                    $.ajax({
+                        url: "/check_ca_password",
+                        type: "GET",
+                        success: function(response) {
+                            if (response.has_password) {
+                                // 如果CA证书有密码保护，更新密码字段提示
+                                $("#password-hint").text("CA证书有密码保护，请输入密码").css("color", "#d9534f");
+                                $("#cert_password").attr("placeholder", "请输入CA证书密码").attr("required", "required");
+                            } else {
+                                // 如果CA证书没有密码保护，更新密码字段提示
+                                $("#password-hint").text("CA证书无密码保护，无需输入密码").css("color", "#5cb85c");
+                                $("#cert_password").attr("placeholder", "无需输入密码").removeAttr("required");
+                            }
+                        },
+                        error: function() {
+                            $("#password-hint").text("无法检查CA证书密码状态，如有密码请输入").css("color", "#f0ad4e");
+                        }
+                    });
+                }
+            });
+
+            // 已存在CA提示窗口的确定按钮点击事件
+            $("#ca-exists-confirm-btn").click(function() {
+                $("#ca-exists-modal").css("display", "none");
+            });
+
+            // 关闭模态窗口
+            $(".close").click(function() {
+                $(this).closest(".modal").css("display", "none");
+            });
+
+            // 点击模态窗口外部关闭
+            $(window).click(function(event) {
+                if ($(event.target).is(".modal")) {
+                    $(".modal").css("display", "none");
+                }
+            });
+
+            // 提交创建CA表单
+            $("#create-ca-form").submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "/create_ca",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        // 更新虚拟机构表格内容（使用eq(0)选择第一个表格）
+                        $(".data-table:eq(0) tbody").html(response);
+                        // 关闭模态窗口
+                        $("#create-ca-modal").css("display", "none");
+                    },
+                    error: function(xhr) {
+                        alert("创建失败: " + xhr.responseText);
+                    }
+                });
+            });
+
+            // 取消按钮点击事件
+            $(".cancel-btn").click(function() {
+                $(this).closest(".modal").css("display", "none");
+            });
+
+            // 删除CA按钮点击事件
+            $("#delete-ca-btn").click(function() {
+                $("#delete-ca-modal").css("display", "block");
+            });
+
+            // 确认删除按钮点击事件
+            $("#confirm-delete-btn").click(function() {
+                $.ajax({
+                    url: "/delete_ca",
+                    type: "POST",
+                    success: function(response) {
+                        // 更新虚拟机构表格内容（使用eq(0)选择第一个表格）
+                        $(".data-table:eq(0) tbody").html(response);
+                        // 关闭模态窗口
+                        $("#delete-ca-modal").css("display", "none");
+                    },
+                    error: function(xhr) {
+                        alert("删除失败: " + xhr.responseText);
+                    }
+                });
+            });
+
+            // 取消删除按钮点击事件
+            $("#cancel-delete-btn").click(function() {
+                $("#delete-ca-modal").css("display", "none");
+            });
+            
+            // 需要CA提示窗口的确定按钮点击事件
+            $("#need-ca-confirm-btn").click(function() {
+                $("#need-ca-modal").css("display", "none");
+            });
+            
+            // 提交创建证书表单
+            $("#create-cert-form").submit(function(e) {
+                e.preventDefault();
+                
+                // 检查CA证书是否有密码保护
+                var hasPassword = false;
+                // 通过检查表格中的数据来判断CA是否有密码保护
+                // 这里可以添加一个隐藏字段或者其他方式来传递这个信息
+                
+                // 获取密码字段
+                var password = $("#cert_password").val();
+                
+                // 显示加载提示
+                var loadingHtml = '<div id="loading-indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 2000;">正在处理，请稍候...</div>';
+                $("body").append(loadingHtml);
+                
+                $.ajax({
+                    url: "/create_cert",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    timeout: 15000, // 设置15秒超时
+                    success: function(response) {
+                        // 移除加载提示
+                        $("#loading-indicator").remove();
+                        
+                        // 调用loadCertList()函数刷新证书列表
+                        loadCertList();
+                        // 关闭模态窗口
+                        $("#create-cert-modal").css("display", "none");
+                    },
+                    error: function(xhr, status, error) {
+                        // 移除加载提示
+                        $("#loading-indicator").remove();
+                        
+                        if (status === "timeout") {
+                            alert("创建证书超时，可能是密码错误导致进程等待输入。请检查密码后重试。");
+                        } else {
+                            alert("创建证书失败: " + xhr.responseText);
+                        }
+                    }
+                });
+            });
+
+            // 证书类型选择事件处理
+            $('input[name="cert-type"]').change(function() {
+                if ($(this).val() === 'qilin') {
+                    $('.upload-btn').hide();
+                } else {
+                    $('.upload-btn').show();
+                }
+            });
+            
+            // 初始化时触发一次change事件
+            $('input[name="cert-type"]:checked').trigger('change');
+        });
+    </script>
+    <!-- 引入证书列表加载脚本 -->
+    <script src="{{ url_for('static', filename='js/cert_list.js') }}"></script>
+    <!-- 引入地址显示处理脚本 -->
+    <script src="{{ url_for('static', filename='js/address_display.js') }}"></script>
+    <!-- 引入文件上传处理脚本 -->
+    <script src="{{ url_for('static', filename='js/file_upload.js') }}"></script>
+    
+    {% include 'create_cert_modal.html' %}
+</body>
+</html>
+
+

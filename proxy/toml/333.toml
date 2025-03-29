@@ -1,0 +1,9 @@
+
+# 反向代理配置文件 - 333
+[[host]]
+bind="https://192.168.0.116:5006/"
+tlscert="./cert/333.crt"
+tlskey="./cert/333.key"
+target="http://192.168.0.116:5005/"
+upstream="192.168.0.116:5005"
+timeout=3000

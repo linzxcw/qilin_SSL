@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>系统设置 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .qq-group-link {
+            color: #2980b9;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 20px;
+            display: block;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="padding-left: 10px;">
+            <img src="/static/images/qilinssl-logo.png" alt="logo" style="width: 50px; height: 50px;">
+            <h2>qilin SSL</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="icon-home"></i><span>主页</span></a></li>
+            <li><a href="/verify"><i class="icon-certificate"></i><span>证书验证</span></a></li>
+            <li><a href="/proxy"><i class="icon-exchange"></i><span>反向代理</span></a></li> 
+            <li><a href="#"><i class="icon-book"></i><span>证书教程</span></a></li>
+            <li><a href="/about"><i class="icon-info-circle"></i><span>关于</span></a></li>
+            <li><a href="/settings" class="active"><i class="fas fa-cog"></i><span>设置</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>注销</span></a></li>
+            
+        </ul>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>qilin SSL自签证书管理系统</h1>
+        <div class="divider"></div>
+        
+        <!-- 设置区域 -->
+        <div class="section-header">
+            <i class="fas fa-user"></i>
+            <h2>用户设置</h2>
+        </div>
+        
+        <div class="card">
+            <form id="settings-form" method="POST" action="/settings">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" value="{{ username }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="old_password">原密码</label>
+                    <input type="password" id="old_password" name="old_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">新密码</label>
+                    <input type="password" id="new_password" name="new_password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="reset" class="btn btn-secondary">重置</button>
+                </div>
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="success-message">{{ success }}</div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- QQ群链接 -->
+        <div class="section-header" style="margin-top: 30px;">
+            <i class="fas fa-users"></i>
+            <h2>社区交流</h2>
+        </div>
+        <div class="card">
+            <a class="qq-group-link" id="showQQGroup">QQ群：784295077</a>
+        </div>
+
+        <!-- 模态弹窗 -->
+        <div id="qqGroupModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <img src="{{ url_for('static', filename='images/qq-qun.jpg') }}" alt="QQ群二维码">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取模态框元素
+        var modal = document.getElementById("qqGroupModal");
+        var link = document.getElementById("showQQGroup");
+        var span = document.getElementsByClassName("close")[0];
+
+        // 点击链接打开模态框
+        link.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // 点击 × 关闭模态框
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // 点击模态框外部关闭模态框
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

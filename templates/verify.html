@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>证书验证 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="padding-left: 10px;">
+            <img src="/static/images/qilinssl-logo.png" alt="logo" style="width: 50px; height: 50px;">
+            <h2>qilin SSL</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="icon-home"></i><span>主页</span></a></li>
+            <li><a href="/verify" class="active"><i class="icon-certificate"></i><span>证书验证</span></a></li>
+            <li><a href="/proxy"><i class="icon-exchange"></i><span>反向代理</span></a></li>
+            <li><a href="#"><i class="icon-book"></i><span>证书教程</span></a></li>
+            <li><a href="/about"><i class="icon-info-circle"></i><span>关于</span></a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i><span>设置</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>注销</span></a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <h1>qilin SSL自签证书管理系统</h1>
+        
+        <div class="section-header">
+            <i class="fas fa-shield-alt"></i>
+            <h2>证书验证</h2>
+        </div>
+        
+        <div class="card">
+            <p class="verify-instruction">先在本地终端安装虚拟机构的CA证书，再进行验证，详情见证书教程。</p>
+            
+            <div class="verify-form">
+                <div class="form-group">
+                    <label for="verify-address">IP地址或域名：</label>
+                    <input type="text" id="verify-address" name="verify-address" placeholder="请输入IP地址或域名">
+                </div>
+                
+                <div class="form-group">
+                    <label>证书类型：</label>
+                    <div class="radio-group" style="display: flex; gap: 20px; font-weight: normal;">
+                        <label class="radio-label" style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="cert-type" value="qilin" checked>
+                            选取qilin ssl申请的证书
+                        </label>
+                        <label class="radio-label" style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="cert-type" value="custom">
+                            上传自定义证书
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="cert-files" class="form-group">
+                    <div class="file-info">
+                        <span class="file-label">证书文件：</span>
+                        <span id="cert-filename">未选择文件</span>
+                        <input type="file" id="cert-file" style="display: none;" accept=".crt,.pem,.cer">
+                        <button type="button" class="btn btn-primary upload-btn" onclick="document.getElementById('cert-file').click()">上传证书</button>
+                    </div>
+                    <div class="file-info">
+                        <span class="file-label">私钥文件：</span>
+                        <span id="key-filename">未选择文件</span>
+                        <input type="file" id="key-file" style="display: none;" accept=".key,.pem">
+                        <button type="button" class="btn btn-primary upload-btn" onclick="document.getElementById('key-file').click()">上传私钥</button>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="verify-btn">验证</button>
+                <div id="verify-result" style="margin-top: 15px; display: none;">
+                    <div class="alert alert-success">
+                        <p id="verify-message"></p>
+                        <p>验证地址：<a id="verify-url" href="#" target="_blank"></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/file_upload.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+
+# 反向代理配置文件 - alist
+[[host]]
+bind="https://192.168.0.116:5245/"
+tlscert="./cert/alist.crt"
+tlskey="./cert/alist.key"
+target="http://192.168.0.116:5244/"
+upstream="192.168.0.116:5244"
+timeout=3000

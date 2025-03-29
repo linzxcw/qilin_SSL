@@ -1,0 +1,9 @@
+
+# 反向代理配置文件 - work-pc
+[[host]]
+bind="https://192.168.0.116:5006/"
+tlscert="./cert/work-pc.crt"
+tlskey="./cert/work-pc.key"
+target="http://192.168.0.116:5005/"
+upstream="192.168.0.116:5005"
+timeout=3000

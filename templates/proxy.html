@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>反向代理 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="padding-left: 10px;">
+            <img src="/static/images/qilinssl-logo.png" alt="logo" style="width: 50px; height: 50px;">
+            <h2>qilin SSL</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="icon-home"></i><span>主页</span></a></li>
+            <li><a href="/verify"><i class="icon-certificate"></i><span>证书验证</span></a></li>
+            <li><a href="/proxy" class="active"><i class="icon-exchange"></i><span>反向代理</span></a></li>
+            <li><a href="#"><i class="icon-book"></i><span>证书教程</span></a></li>
+            <li><a href="/about"><i class="icon-info-circle"></i><span>关于</span></a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i><span>设置</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>注销</span></a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <h1>qilin SSL自签证书管理系统</h1>
+        
+        <div class="section-header">
+            <i class="fas fa-random"></i>
+            <h2>反向代理</h2>
+        </div>
+        
+        <div class="card">
+            <div class="card-actions">
+                <button class="btn btn-success" id="create-proxy-btn">新增</button>
+                <button class="btn btn-danger" id="delete-proxy-btn">删除</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all-proxies"></th>
+                            <th>服务名称</th>
+                            <th>原本地址</th>
+                            <th>反代后地址</th>
+                            <th>证书有效期</th>
+                            <th>运行状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="7">暂无反向代理服务，请点击新增按钮添加</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建反向代理的模态窗口 -->
+    <div id="create-proxy-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>新增反向代理</h2>
+            <form id="create-proxy-form">
+                <div class="form-group">
+                    <label for="service_name">服务名称:</label>
+                    <input type="text" id="service_name" name="service_name" placeholder="请输入服务名称" required>
+                </div>
+                <div class="form-group">
+                    <label for="original_url">原本地址:</label>
+                    <input type="text" id="original_url" name="original_url" placeholder="例如: http://localhost:8080" required>
+                </div>
+                <div class="form-group">
+                    <label for="proxy_url">反代后地址:</label>
+                    <input type="text" id="proxy_url" name="proxy_url" placeholder="例如: https://example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>证书类型：</label>
+                    <div class="radio-group" style="display: flex; gap: 20px; font-weight: normal;">
+                        <label class="radio-label" style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="cert-type" value="qilin" checked>
+                            选取qilin ssl申请的证书
+                        </label>
+                        <label class="radio-label" style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="cert-type" value="custom">
+                            上传自定义证书
+                        </label>
+                    </div>
+                </div>
+                <div id="cert-files" class="form-group">
+                    <!-- 证书选择下拉框，默认隐藏 -->
+                    <div class="form-group" id="qilin-cert-select" style="display: block;"
+                        <select id="cert-list" class="form-control">
+        
+                        </select>
+                    </div>
+                    <div class="file-info">
+                        <span class="file-label">证书文件：</span>
+                        <span id="cert-filename">未选择文件</span>
+                        <input type="file" id="cert-file" style="display: none;" accept=".crt,.pem,.cer">
+                        <button type="button" class="btn btn-primary upload-btn" onclick="document.getElementById('cert-file').click()">上传证书</button>
+                    </div>
+                    <div class="file-info">
+                        <span class="file-label">私钥文件：</span>
+                        <span id="key-filename">未选择文件</span>
+                        <input type="file" id="key-file" style="display: none;" accept=".key,.pem">
+                        <button type="button" class="btn btn-primary upload-btn" onclick="document.getElementById('key-file').click()">上传私钥</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">创建</button>
+                <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除反向代理的模态窗口 -->
+    <div id="delete-proxy-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>删除反向代理</h2>
+            <p>确定要删除选中的反向代理服务吗？此操作不可恢复。</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" id="confirm-delete-proxy-btn">确认删除</button>
+                <button class="btn btn-secondary" id="cancel-delete-proxy-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/file_upload.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // 编辑按钮点击事件
+            $(document).on('click', '.edit-proxy', function() {
+                const row = $(this).closest('tr');
+                const serviceName = row.find('td:eq(1)').text();
+                const originalUrl = row.find('td:eq(2)').text();
+                const proxyUrl = row.find('td:eq(3)').text();
+                const certType = row.data('cert-type'); // 获取证书类型
+                const certId = row.data('cert-id'); // 获取证书ID
+                const certFilename = row.data('cert-filename'); // 获取证书文件名
+                const keyFilename = row.data('key-filename'); // 获取私钥文件名
+                
+
+                // 填充表单并保存原始服务名称和证书信息
+                $('#service_name').val(serviceName);
+                $('#original_url').val(originalUrl);
+                $('#proxy_url').val(proxyUrl);
+                $('#create-proxy-form').data('original-service-name', serviceName);
+                $('#create-proxy-form').data('cert-filename', certFilename);
+                $('#create-proxy-form').data('key-filename', keyFilename);
+                $('#create-proxy-form').data('cert-type', certType);
+                $('#create-proxy-form').data('cert-id', certId);
+                
+                // 重置表单中的证书相关显示
+                $('#cert-filename').text('未选择文件');
+                $('#key-filename').text('未选择文件');
+                
+                // 设置证书类型
+                $(`input[name='cert-type'][value='${certType}']`).prop('checked', true);
+                
+                // 显示模态窗口
+                $('#create-proxy-modal').css('display', 'block');
+                
+                // 根据证书类型设置相应的值
+                if (certType === 'qilin') {
+                    // 如果是qilin证书，先确保证书列表加载完成
+                    // 显示证书列表，隐藏上传按钮
+                    const uploadButtons = Array.from($('.upload-btn'));
+                    uploadButtons.forEach(button => {
+                        button.style.display = 'none';
+                    });
+                    
+                    // 确保证书列表显示
+                    $('#cert-list').css('display', 'block');
+                    
+                    // 加载证书列表并设置选中值
+                    $.ajax({
+                        url: '/list_certs',
+                        type: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        success: function(response) {
+                            const certListSelect = $('#cert-list');
+                            certListSelect.empty().append('<option value="">请选择证书</option>');
+                            
+                            if (response && Array.isArray(response.certs)) {
+                                response.certs.forEach(cert => {
+                                    if (cert && cert.name) {
+                                        const option = document.createElement('option');
+                                        option.value = cert.name;
+                                        option.textContent = cert.name;
+                                        certListSelect.append(option);
+                                    }
+                                });
+                                
+                                // 设置选中的证书
+                                if (certId) {
+                                    certListSelect.val(certId);
+                                    // 更新显示的文件名
+                                    $('#cert-filename').text(certId + '.crt');
+                                    $('#key-filename').text(certId + '.key');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('获取证书列表失败:', error);
+                            alert('获取证书列表失败，请刷新页面重试');
+                        }
+                    });
+                } else if (certType === 'custom') {
+                    // 如果是自定义证书，显示上传按钮
+                    $('.upload-btn').show();
+                    
+                    // 隐藏证书列表
+                    $('#cert-list').hide();
+                    
+                    // 显示已上传的证书文件名
+                    if (certFilename && certFilename !== 'undefined') {
+                        $('#cert-filename').text(certFilename);
+                    }
+                    if (keyFilename && keyFilename !== 'undefined') {
+                        $('#key-filename').text(keyFilename);
+                    }
+                }
+                
+                // 修改弹窗标题和按钮文本
+                $('#create-proxy-modal h2').text('编辑反向代理');
+                $('#create-proxy-form button[type="submit"]').text('保存');
+                
+                // 显示弹窗
+                $('#create-proxy-modal').show();
+            });
+            
+            // 关闭弹窗时重置标题和按钮文本
+            $('.close, .cancel-btn').click(function() {
+                $('#create-proxy-modal h2').text('新增反向代理');
+                $('#create-proxy-form button[type="submit"]').text('创建');
+            });
+            // 新增按钮点击事件
+            $('#create-proxy-btn').click(function() {
+                // 重置表单
+                $('#create-proxy-form')[0].reset();
+                $('#cert-filename').text('未选择文件');
+                $('#key-filename').text('未选择文件');
+                
+                // 重置表单数据
+                $('#create-proxy-form').removeData('original-service-name');
+                $('#create-proxy-form').removeData('cert-filename');
+                $('#create-proxy-form').removeData('key-filename');
+                $('#create-proxy-form').removeData('cert-type');
+                $('#create-proxy-form').removeData('cert-id');
+                
+                // 默认选中qilin证书类型
+                $('input[name="cert-type"][value="qilin"]').prop('checked', true);
+                
+                // 显示证书列表，隐藏上传按钮
+                $('#qilin-cert-select').show();
+                $('.upload-btn').hide();
+                
+                // 加载证书列表
+                $.ajax({
+                    url: '/list_certs',
+                    type: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    success: function(response) {
+                        const certListSelect = $('#cert-list');
+                        certListSelect.empty().append('<option value="">请选择证书</option>');
+                        
+                        if (response && Array.isArray(response.certs)) {
+                            response.certs.forEach(cert => {
+                                if (cert && cert.name) {
+                                    const option = document.createElement('option');
+                                    option.value = cert.name;
+                                    option.textContent = cert.name;
+                                    certListSelect.append(option);
+                                }
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('获取证书列表失败:', error);
+                        alert('获取证书列表失败，请刷新页面重试');
+                    }
+                });
+                
+                // 显示模态窗口
+                $('#create-proxy-modal').show();
+            });
+            
+            // 证书类型切换事件
+            $('input[name="cert-type"]').change(function() {
+                const certType = $(this).val();
+                if (certType === 'qilin') {
+                    // 显示证书列表，隐藏上传按钮
+                    $('#qilin-cert-select').show();
+                    $('.upload-btn').hide();
+                    
+                    // 加载证书列表
+                    $.ajax({
+                        url: '/list_certs',
+                        type: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        success: function(response) {
+                            const certListSelect = $('#cert-list');
+                            certListSelect.empty().append('<option value="">请选择证书</option>');
+                            
+                            if (response && Array.isArray(response.certs)) {
+                                response.certs.forEach(cert => {
+                                    if (cert && cert.name) {
+                                        const option = document.createElement('option');
+                                        option.value = cert.name;
+                                        option.textContent = cert.name;
+                                        certListSelect.append(option);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('获取证书列表失败:', error);
+                            alert('获取证书列表失败，请刷新页面重试');
+                        }
+                    });
+                } else {
+                    // 隐藏证书列表，显示上传按钮
+                    $('#qilin-cert-select').hide();
+                    $('.upload-btn').show();
+                }
+            });
+
+            // 删除按钮点击事件
+            $('#delete-proxy-btn').click(function() {
+                const selectedRows = $('.data-table tbody input[type="checkbox"].proxy-select:checked').closest('tr');
+
+                selectedRows.each(function(index) {
+                    const serviceName = $(this).find('td:eq(1)').text();
+                    console.log(`第${index + 1}个选中的服务名称:`, serviceName);
+                });
+                
+                if (selectedRows.length === 0) {
+                    alert('请选择要删除的代理服务');
+                    return;
+                }
+
+                const serviceNames = [];
+                selectedRows.each(function() {
+                    serviceNames.push($(this).find('td:eq(1)').text());
+                });
+
+                const message = serviceNames.length === 1 
+                    ? `确定要删除代理服务 "${serviceNames[0]}" 吗？此操作不可恢复。`
+                    : `确定要删除选中的 ${serviceNames.length} 个代理服务吗？此操作不可恢复。`;
+
+                $('#delete-proxy-modal p').text(message);
+                $('#delete-proxy-modal').css('display', 'block');
+            });
+
+            // 关闭模态窗口
+            $(".close, .cancel-btn").click(function() {
+                $(this).closest(".modal").css("display", "none");
+            });
+
+            // 点击模态窗口外部关闭
+            $(window).click(function(event) {
+                if ($(event.target).is(".modal")) {
+                    $(".modal").css("display", "none");
+                }
+            });
+
+            // 全选/取消全选
+            $("#select-all-proxies").change(function() {
+                $(".data-table tbody input[type='checkbox'].proxy-select").prop('checked', $(this).prop('checked'));
+            });
+
+            // 重置所有复选框状态
+
+            // 页面加载时获取现有的反向代理列表
+            function loadProxyList() {
+                // 重置所有复选框状态
+
+                
+                $.ajax({
+                    url: '/get_proxy_list',
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.success && response.proxies.length > 0) {
+                            $(".empty-row").remove();
+                            // 按照创建时间排序
+                            response.proxies.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                            
+                            // 创建一个Promise数组来存储所有的进程状态检查请求
+                            const statusChecks = response.proxies.map(proxy => {
+                                return new Promise((resolve) => {
+                                    $.ajax({
+                                        url: `/get_proxy_pid/${proxy.id}`,
+                                        type: 'GET',
+                                        success: function(statusResponse) {
+                                            resolve({
+                                                proxy: proxy,
+                                                status: statusResponse
+                                            });
+                                        },
+                                        error: function() {
+                                            resolve({
+                                                proxy: proxy,
+                                                status: { success: false, pid: null }
+                                            });
+                                        }
+                                    });
+                                });
+                            });
+
+                            // 等待所有状态检查完成后再更新表格
+                            Promise.all(statusChecks).then(results => {
+                                results.forEach(result => {
+                                    const isRunning = result.status.success && result.status.pid;
+                                    const pid = isRunning ? result.status.pid : '';
+                                    const proxy = result.proxy;
+                                    
+                                    const newRow = $(`
+                                        <tr data-id="${proxy.id}" data-cert-type="${proxy.cert_type || 'custom'}" data-cert-id="${proxy.cert_id || ''}" data-cert-filename="${proxy.cert_filename || ''}" data-key-filename="${proxy.key_filename || ''}" data-running="${isRunning}" data-pid="${pid}">
+                                            <td><input type="checkbox" class="proxy-select"></td>
+                                            <td>${proxy.service_name}</td>
+                                            <td>${proxy.original_url}</td>
+                                            <td>${proxy.proxy_url}</td>
+                                            <td>${proxy.cert_expiry}</td>
+                                            <td class="proxy-status"><span class="status-badge ${isRunning ? 'status-running' : 'status-stopped'}">${isRunning ? '运行中' : '已停止'}</span></td>
+                                            <td>
+                                                <label class="switch">
+                                                    <input type="checkbox" class="proxy-toggle" ${isRunning ? 'checked' : ''}>
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <button class="btn btn-sm btn-success edit-proxy" title="编辑">编辑</button>
+                                                <button class="btn btn-sm btn-primary visit-proxy" title="访问" onclick="window.open('${proxy.proxy_url}')">访问</button>
+                                                <button class="btn btn-sm btn-danger delete-single-proxy" title="删除">删除</button>
+                                            </td>
+                                        </tr>
+                                    `);
+
+                                    // 绑定开关事件
+                                    newRow.find('.proxy-toggle').change(function() {
+                                        const isChecked = $(this).prop('checked');
+                                        const proxyId = $(this).closest('tr').data('id');
+                                        if (isChecked) {
+                                            runProxyService(proxyId);
+                                        } else {
+                                            const pid = $(this).closest('tr').data('pid');
+                                            stopProxyService(proxyId, pid);
+                                        }
+                                    });
+
+                                    $('.data-table tbody').append(newRow);
+                                });
+                                
+                                // 移除此处的复选框重置代码，因为已经在函数开始时执行过了
+                            });
+                        }
+                    }
+                });
+            }
+
+            // 添加代理行到表格
+            function appendProxyRow(proxy, index = null) {
+                // 获取进程号
+                $.ajax({
+                    url: `/get_proxy_pid/${proxy.id}`,
+                    type: 'GET',
+                    success: function(response) {
+                        const isRunning = response.success && response.pid;
+                        const pid = isRunning ? response.pid : '';
+                        const newRow = $(`
+                            <tr data-id="${proxy.id}" data-cert-type="${proxy.cert_type || 'custom'}" data-cert-id="${proxy.cert_id || ''}" data-cert-filename="${proxy.cert_filename || ''}" data-key-filename="${proxy.key_filename || ''}" data-running="${isRunning}" data-pid="${pid}">
+                                <td><input type="checkbox" class="proxy-select"></td>
+                                <td>${proxy.service_name}</td>
+                                <td>${proxy.original_url}</td>
+                                <td>${proxy.proxy_url}</td>
+                                <td>${proxy.cert_expiry}</td>
+                                <td class="proxy-status"><span class="status-badge ${isRunning ? 'status-running' : 'status-stopped'}">${isRunning ? '运行中' : '已停止'}</span></td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" class="proxy-toggle" ${isRunning ? 'checked' : ''}>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <button class="btn btn-sm btn-success edit-proxy" title="编辑">编辑</button>
+                                    <button class="btn btn-sm btn-primary visit-proxy" title="访问" onclick="window.open('${proxy.proxy_url}')">访问</button>
+                                    <button class="btn btn-sm btn-danger delete-single-proxy" title="删除">删除</button>
+                                </td>
+                            </tr>
+                        `);
+                
+                        // 绑定开关事件
+                        newRow.find('.proxy-toggle').change(function() {
+                            const isChecked = $(this).prop('checked');
+                            const proxyId = $(this).closest('tr').data('id');
+                            if (isChecked) {
+                                runProxyService(proxyId);
+                            } else {
+                                const pid = $(this).closest('tr').data('pid');
+                                stopProxyService(proxyId, pid);
+                            }
+                        });
+                
+                        // 根据index插入行
+                        if (index !== null && index >= 0) {
+                            const rows = $('.data-table tbody tr').not('.empty-row');
+                            if (index < rows.length) {
+                                rows.eq(index).before(newRow);
+                            } else {
+                                $('.data-table tbody').append(newRow);
+                            }
+                        } else {
+                            $('.data-table tbody').append(newRow);
+                        }
+                    },
+                    error: function() {
+                        // 如果获取进程号失败，默认为停止状态
+                        const newRow = $(`
+                            <tr data-id="${proxy.id}" data-cert-type="${proxy.cert_type || 'custom'}" data-cert-id="${proxy.cert_id || ''}" data-cert-filename="${proxy.cert_filename || ''}" data-key-filename="${proxy.key_filename || ''}" data-running="false" data-pid="">
+                                <td><input type="checkbox" class="proxy-select"></td>
+                                <td>${proxy.service_name}</td>
+                                <td>${proxy.original_url}</td>
+                                <td>${proxy.proxy_url}</td>
+                                <td>${proxy.cert_expiry}</td>
+                                <td class="proxy-status"><span class="status-badge status-stopped">已停止</span></td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" class="proxy-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <button class="btn btn-sm btn-success edit-proxy" title="编辑">编辑</button>
+                                    <button class="btn btn-sm btn-primary visit-proxy" title="访问" onclick="window.open('${proxy.proxy_url}')">访问</button>
+                                    <button class="btn btn-sm btn-danger delete-single-proxy" title="删除">删除</button>
+                                </td>
+                            </tr>
+                        `);
+                
+                        // 绑定开关事件
+                        newRow.find('.proxy-toggle').change(function() {
+                            const isChecked = $(this).prop('checked');
+                            const proxyId = $(this).closest('tr').data('id');
+                            if (isChecked) {
+                                runProxyService(proxyId);
+                            } else {
+                                const pid = $(this).closest('tr').data('pid');
+                                stopProxyService(proxyId, pid);
+                            }
+                        });
+                
+                        // 根据index插入行
+                        if (index !== null && index >= 0) {
+                            const rows = $('.data-table tbody tr').not('.empty-row');
+                            if (index < rows.length) {
+                                rows.eq(index).before(newRow);
+                            } else {
+                                $('.data-table tbody').append(newRow);
+                            }
+                        } else {
+                            $('.data-table tbody').append(newRow);
+                        }
+                    }
+                });
+            }
+
+            // 页面加载时获取代理列表
+            loadProxyList();
+
+            // 提交创建反向代理表单
+            $("#create-proxy-form").submit(function(e) {
+                e.preventDefault();
+                const formData = new FormData();
+                const serviceName = $("#service_name").val();
+                const originalUrl = $("#original_url").val();
+                const proxyUrl = $("#proxy_url").val();
+                const certType = $("input[name='cert-type']:checked").val();
+                
+                // 检查服务名称是否重复
+                const isEditing = $('#create-proxy-modal h2').text() === '编辑反向代理';
+                const currentServiceName = isEditing ? $('#create-proxy-form').data('original-service-name') : null;
+                
+                const isDuplicate = $('.data-table tbody tr').toArray().some(row => {
+                    const rowServiceName = $(row).find('td:eq(1)').text();
+                    // 如果是编辑模式且服务名称未改变，不视为重复
+                    if (isEditing && rowServiceName === currentServiceName) {
+                        return false;
+                    }
+                    return rowServiceName === serviceName;
+                });
+                
+                if (isDuplicate) {
+                    alert('服务名称已存在，请使用其他名称');
+                    return;
+                }
+                
+                // 如果是编辑模式，先记录原有行的位置并移除
+                let originalIndex = null;
+                if (isEditing) {
+                    const rows = $(".data-table tbody tr");
+                    rows.each(function(index) {
+                        if ($(this).find('td:eq(1)').text() === currentServiceName) {
+                            originalIndex = index;
+                            $(this).remove();
+                            return false;
+                        }
+                    });
+                }
+
+                formData.append('service_name', serviceName);
+                formData.append('original_url', originalUrl);
+                formData.append('proxy_url', proxyUrl);
+                formData.append('cert_type', certType);
+
+                // 根据证书类型获取证书信息
+                if (certType === 'qilin') {
+                    const certId = $("#cert-list").val();
+                    if (!certId) {
+                        alert("请选择证书");
+                        return;
+                    }
+                    formData.append('cert_id', certId);
+                } else {
+                    // 检查是否为编辑模式且已有证书文件
+                    const isEditing = $('#create-proxy-modal h2').text() === '编辑反向代理';
+                    const originalServiceName = $('#create-proxy-form').data('original-service-name');
+                    
+                    // 直接从表单数据中获取证书信息，而不是从表格行中查找
+                    const certFilename = $('#create-proxy-form').data('cert-filename');
+                    const keyFilename = $('#create-proxy-form').data('key-filename');
+                    const hasCertFiles = isEditing && certFilename && keyFilename;
+                    
+                    // 获取证书类型
+                    const savedCertType = $('#create-proxy-form').data('cert-type');
+
+
+                    // 检查是否有新上传的文件
+                    const certFile = $("#cert-file")[0].files[0];
+                    const keyFile = $("#key-file")[0].files[0];
+
+
+                    if (certFile || keyFile) {
+                        // 如果上传了任一文件，需要验证另一个文件
+                        if (certFile) {
+                            formData.append('cert_file', certFile);
+                            if (!keyFile) {
+                                if (hasCertFiles) {
+                                    // 使用已有的私钥文件
+                                    formData.append('key_filename', keyFilename);
+                                    console.log('使用已有的私钥文件:', keyFilename);
+                                } else {
+                                    alert("请上传私钥文件");
+                                    return;
+                                }
+                            }
+                        }
+                        if (keyFile) {
+                            formData.append('key_file', keyFile);
+                            if (!certFile) {
+                                if (hasCertFiles) {
+                                    // 使用已有的证书文件
+                                    formData.append('cert_filename', certFilename);
+                                    console.log('使用已有的证书文件:', certFilename);
+                                } else {
+                                    alert("请上传证书文件");
+                                    return;
+                                }
+                            }
+                        }
+                    } else if (hasCertFiles) {
+                        // 如果是编辑模式且已有证书文件，使用已有的证书文件信息
+formData.append('cert_filename', certFilename);
+                        formData.append('key_filename', keyFilename);
+                    } else {
+                        alert("请上传证书和私钥文件");
+                        return;
+                    }
+                }
+
+                // 发送到服务器并更新表格
+                $.ajax({
+                    url: '/create_proxy',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            // 移除空行
+                            $(".empty-row").remove();
+                            
+                            // 添加新行到原来的位置
+                            const proxy = {
+                                id: response.proxy_id,
+                                service_name: serviceName,
+                                original_url: originalUrl,
+                                proxy_url: proxyUrl,
+                                cert_expiry: response.cert_expiry,
+                                cert_type: certType,
+                                cert_id: certType === 'qilin' ? $('#cert-list').val() : '',
+                                cert_filename: certType === 'custom' ? $('#cert-filename').text() : '',
+                                key_filename: certType === 'custom' ? $('#key-filename').text() : ''
+                            };
+                            appendProxyRow(proxy, originalIndex);
+                            
+                            // 关闭模态窗口并重置表单
+                            $("#create-proxy-modal").css("display", "none");
+                            $("#create-proxy-form")[0].reset();
+                            $("#cert-filename").text("未选择文件");
+                            $("#key-filename").text("未选择文件");
+                            
+                            // 自动运行新创建的反向代理服务
+                            runProxyService(response.proxy_id);
+                        } else {
+                            alert("创建反向代理失败：" + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert("创建反向代理时发生错误");
+                    }
+                });
+            });
+
+            // 单个删除按钮点击事件
+            $(document).on('click', '.delete-single-proxy', function() {
+                const row = $(this).closest('tr');
+                const proxyId = row.data('id');
+                const serviceName = row.find('td:eq(1)').text();
+                
+                // 更新模态窗口内容并显示
+                $('#delete-proxy-modal p').text(`确定要删除代理服务 "${serviceName}" 吗？此操作不可恢复。`);
+                $('#delete-proxy-modal').css('display', 'block');
+                
+                // 确认删除按钮点击事件
+                $('#confirm-delete-proxy-btn').off('click').on('click', function() {
+                    $.ajax({
+                        url: '/delete_proxy',
+                        type: 'POST',
+                        data: JSON.stringify({ proxy_ids: [proxyId] }),
+                        contentType: 'application/json',
+                        success: function(response) {
+                            if (response.success) {
+                                row.remove();
+                                
+                                // 如果表格为空，添加空行提示
+                                if ($('.data-table tbody tr').length === 0) {
+                                    $('.data-table tbody').append('<tr class="empty-row"><td colspan="6">暂无反向代理服务，请点击新增按钮添加</td></tr>');
+                                }
+                                
+                                // 关闭模态窗口
+                                $('#delete-proxy-modal').css('display', 'none');
+                            } else {
+                                alert('删除失败：' + response.message);
+                            }
+                        },
+                        error: function() {
+                            alert('删除操作失败，请稍后重试');
+                        }
+                    });
+                });
+            });
+            
+            // 关闭模态窗口的事件
+            $('#delete-proxy-modal .close, #cancel-delete-proxy-btn').click(function() {
+                $('#delete-proxy-modal').css('display', 'none');
+            });
+
+            
+            // 批量删除确认按钮点击事件
+            $('#confirm-delete-proxy-btn').click(function() {
+                const selectedRows = $('.data-table tbody input[type="checkbox"].proxy-select:checked').closest('tr');
+                if (selectedRows.length === 0) {
+                    alert('请选择要删除的代理服务');
+                    return;
+                }
+
+                const proxyIds = [];
+                const serviceNames = [];
+                selectedRows.each(function() {
+                    proxyIds.push($(this).data('id'));
+                    serviceNames.push($(this).find('td:eq(1)').text());
+                });
+
+                $.ajax({
+                    url: '/delete_proxy',
+                    type: 'POST',
+                    data: JSON.stringify({ proxy_ids: proxyIds }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.success) {
+                            selectedRows.remove();
+                            $('#delete-proxy-modal').css('display', 'none');
+                            // 如果表格中没有数据了，显示空行提示
+                            if ($('.data-table tbody tr').length === 0) {
+                                $('.data-table tbody').html('<tr class="empty-row"><td colspan="7">暂无反向代理服务，请点击新增按钮添加</td></tr>');
+                            }
+                        } else {
+                            alert('删除失败：' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('删除操作失败，请稍后重试');
+                    }
+                });
+            });
+
+            // 取消删除按钮点击事件
+            $('#cancel-delete-proxy-btn').click(function() {
+                $('#delete-proxy-modal').css('display', 'none');
+            });
+            
+            // 启动反向代理服务函数
+            function runProxyService(proxyId) {
+                $.ajax({
+                    url: '/run_proxy',
+                    type: 'POST',
+                    data: JSON.stringify({ proxy_id: proxyId }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.success) {
+                            // 更新UI显示运行状态
+                            const row = $(`.data-table tbody tr[data-id="${proxyId}"]`);
+                            row.attr('data-running', 'true');
+                            row.attr('data-pid', response.pid);
+                            row.find('.proxy-status .status-badge')
+                               .removeClass('status-stopped')
+                               .addClass('status-running')
+                               .text('运行中');
+                            
+                            // 设置开关状态
+                            row.find('.proxy-toggle').prop('checked', true);
+                        } else {
+                            // 如果启动失败，恢复开关状态
+                            $(`.data-table tbody tr[data-id="${proxyId}"] .proxy-toggle`).prop('checked', false);
+                            alert('启动反向代理服务失败：' + response.message);
+                        }
+                    },
+                    error: function() {
+                        // 如果发生错误，恢复开关状态
+                        $(`.data-table tbody tr[data-id="${proxyId}"] .proxy-toggle`).prop('checked', false);
+                        alert('启动反向代理服务时发生错误');
+                    }
+                });
+            }
+            
+            // 停止反向代理服务函数
+            function stopProxyService(proxyId, pid) {
+                $.ajax({
+                    url: '/stop_proxy',
+                    type: 'POST',
+                    data: JSON.stringify({ proxy_id: proxyId }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.success) {
+                            // 更新UI显示停止状态
+                            const row = $(`.data-table tbody tr[data-id="${proxyId}"]`);
+                            row.attr('data-running', 'false');
+                            row.attr('data-pid', '');
+                            row.find('.proxy-status .status-badge')
+                               .removeClass('status-running')
+                               .addClass('status-stopped')
+                               .text('已停止');
+                            
+                            // 设置开关状态
+                            row.find('.proxy-toggle').prop('checked', false);
+                        } else {
+                            // 如果停止失败，恢复开关状态
+                            $(`.data-table tbody tr[data-id="${proxyId}"] .proxy-toggle`).prop('checked', true);
+                            alert('停止反向代理服务失败：' + response.message);
+                        }
+                    },
+                    error: function() {
+                        // 如果发生错误，恢复开关状态
+                        $(`.data-table tbody tr[data-id="${proxyId}"] .proxy-toggle`).prop('checked', true);
+                        alert('停止反向代理服务时发生错误');
+                    }
+                });
+            }
+            
+            // 启动按钮点击事件
+            $(document).on('click', '.run-proxy', function() {
+                const row = $(this).closest('tr');
+                const proxyId = row.data('id');
+                runProxyService(proxyId);
+            });
+            
+            // 停止按钮点击事件
+            $(document).on('click', '.stop-proxy', function() {
+                const row = $(this).closest('tr');
+                const proxyId = row.data('id');
+                const pid = row.data('pid');
+                stopProxyService(proxyId, pid);
+            });
+        });
+    </script>
+    
+    <style>
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-running {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-stopped {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</body>
+</html>
+</body>
+</html>

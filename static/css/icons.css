@@ -1,0 +1,31 @@
+/* 图标样式文件 */
+/* 使用Font Awesome图标 */
+.icon-home::before {
+    content: "\f015";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.icon-certificate::before {
+    content: "\f0a3";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.icon-exchange::before {
+    content: "\f362";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.icon-book::before {
+    content: "\f02d";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.icon-info-circle::before {
+    content: "\f05a";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
