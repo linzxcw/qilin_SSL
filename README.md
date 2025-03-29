@@ -26,7 +26,7 @@ qilin SSL 是一个基于 Flask 和 OpenSSL 开发的自签证书管理系统，
 ### 3. 证书验证
 - 验证已签发证书的有效性
 - 支持上传自定义证书进行验证
-- 提供证书验证结果和详细信息
+
 
 ### 4. 反向代理服务
 - 基于已签发证书配置 HTTPS 反向代理
@@ -34,10 +34,6 @@ qilin SSL 是一个基于 Flask 和 OpenSSL 开发的自签证书管理系统，
 - 支持多种反向代理配置选项
 - 管理反向代理服务的启动和停止
 
-### 5. 用户管理
-- 安全的用户认证系统
-- 用户信息和密码管理
-- 会话控制和安全退出
 
 ## 系统架构
 
@@ -45,50 +41,31 @@ qilin SSL 是一个基于 Flask 和 OpenSSL 开发的自签证书管理系统，
 - **后端框架**：Flask (Python)
 - **证书工具**：OpenSSL
 - **前端技术**：HTML, CSS, JavaScript, jQuery
-- **数据存储**：JSON 文件
-
-### 目录结构
-```
-├── app.py                 # 主应用程序入口
-├── bin/                   # OpenSSL 工具和配置
-│   ├── openssl.exe        # OpenSSL 可执行文件
-│   ├── cnf/               # OpenSSL 配置文件
-│   └── ...                # 其他 OpenSSL 相关文件
-├── ca/                    # CA 证书存储目录
-├── certs/                 # 签发的证书存储目录
-├── proxy/                 # 反向代理配置和证书
-├── static/                # 静态资源文件
-│   ├── css/               # 样式表文件
-│   ├── js/                # JavaScript 文件
-│   └── images/            # 图片资源
-├── templates/             # HTML 模板
-├── uploads/               # 上传文件临时存储
-└── users.json             # 用户数据文件
-```
 
 ## 安装指南
 
 ### 系统要求
-- Windows 操作系统
+- Windows 操作系统（暂时）
 - Python 3.6 或更高版本
 
 ### 安装步骤
+1. 使用exe可执行文件安装
 
-1. 克隆或下载项目到本地
+2. 或者克隆或下载项目到本地
 
-2. 安装依赖包
+3. 安装依赖包
    ```bash
    pip install flask werkzeug
    ```
 
-3. 运行应用程序
+4. 运行应用程序
    ```bash
    python app.py
    ```
 
-4. 在浏览器中访问 `http://localhost:2002`
+5. 在浏览器中访问 `http://127.0.0.1:2002`
 
-5. 使用默认账号登录
+6. 使用默认账号登录
    - 用户名：admin
    - 密码：admin123
 
