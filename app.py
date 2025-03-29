@@ -243,6 +243,11 @@ def verify():
 def proxy():
     return render_template('proxy.html')
 
+@app.route('/tutorial')
+@login_required
+def tutorial():
+    return render_template('tutorial.html')
+
 @app.route('/about')
 @login_required
 def about():

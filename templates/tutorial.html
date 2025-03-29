@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/qilinssl-logo.ico') }}">
+    <title>证书教程 - qilin SSL自签证书管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .tutorial-container {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .tutorial-header {
+            text-align: center;
+
+        }
+        .tutorial-header h1 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        .tutorial-header h2 {
+            color: #34495e;
+            font-size: 1.5rem;
+        }
+        .tutorial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .tutorial-step {
+            margin-bottom: 1.5rem;
+            
+            border-bottom: 1px solid #dcdde1;
+        }
+        .tutorial-step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .tutorial-step h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .tutorial-step p {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .tutorial-step ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            color: #34495e;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="padding-left: 10px;">
+            <img src="/static/images/qilinssl-logo.png" alt="logo" style="width: 50px; height: 50px;">
+            <h2>qilin SSL</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i class="icon-home"></i><span>主页</span></a></li>
+            <li><a href="/verify"><i class="icon-certificate"></i><span>证书验证</span></a></li>
+            <li><a href="/proxy"><i class="icon-exchange"></i><span>反向代理</span></a></li>
+            <li><a href="/tutorial" class="active"><i class="icon-book"></i><span>证书教程</span></a></li>
+            <li><a href="/about"><i class="icon-info-circle"></i><span>关于</span></a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i><span>设置</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>注销</span></a></li>
+        </ul>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <div class="tutorial-container">
+            <div class="tutorial-header">
+                <h1>qilin SSL自签证书管理系统</h1>
+                <h2>使用教程</h2>
+            </div>
+            <div class="tutorial-card">
+                <div class="tutorial-step">
+                    <h3>1. 创建虚拟机构</h3>
+                    <p>在虚拟机构卡片中，您可以轻松创建新的CA证书：</p>
+                    <ul>
+                        <li>点击"创建"按钮；</li>
+                        <li>填写机构名称（可留空）和密码（可不设）；</li>
+                        <li>点击确认生成CA证书；</li>
+                        <li>下载虚拟机构的CA证书。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>2. 证书申请</h3>
+                    <p>在证书列表卡片中，您可以随时申请新的SSL证书：</p>
+                    <ul>
+                        <li>点击"新增"按钮；</li>
+                        <li>填写IP地址或域名信息（支持多IP和多域名）；</li>
+                        <li>填写证书的基本信息（CA证书如果设了密码要填写密码）；</li>
+                        <li>点击确认生成证书。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>3. 证书验证</h3>
+                    <p>在证书验证页面中，您可以：</p>
+                    <ul>
+                        <li>先安装CA证书到本地设备；</li>
+                        <li>填写本地设备IP地址，如：192.168.0.2；</li>
+                        <li>选择证书列表里的证书或上传证书文件（证书里的IP地址需包含有本地设备IP）；</li>
+                        <li>点击"验证"，稍等一会自动跳转验证页面；</li>
+                        <li>如提示不安全链接，关闭浏览器，重新验证。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>3. 反向代理配置</h3>
+                    <p>在反向代理页面中，您可以：</p>
+                    <ul>
+                        <li>配置HTTP转HTTPS反向代理服务，如：http://192.168.0.2:5244反代成https://192.168.0.2:5245；</li>
+                        <li>其中http://192.168.0.2:5244为原本地址，https://192.168.0.2:5245为反代后地址；</li>
+                        <li>点击"新增"，启用SSL/TLS加密通信；</li>
+                        <li>开启或关闭代理服务。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>4. 用户设置</h3>
+                    <p>在设置页面中，您可以方便地修改用户名和密码：</p>
+                    <ul>
+                        <li>填入新的用户名；</li>
+                        <li>填入旧的密码和想要创建的新密码；</li>
+                        <li>点击"保存"修改。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tutorial-header">
+                <h2>各系统安装CA证书的方法</h2>
+            </div>
+            <div class="tutorial-card">
+                <div class="tutorial-step">
+                    <h3>1. Windows系统</h3>
+                    <p>在Windows系统中安装CA证书：</p>
+                    <ul>
+                        <li>双击下载的CA证书文件；</li>
+                        <li>点击"安装证书"；</li>
+                        <li>选择"本地计算机"，点击"下一步"；</li>
+                        <li>选择"将所有的证书都放入下列存储"，点击"浏览"；</li>
+                        <li>选择"受信任的根证书颁发机构"，点击"确定"；</li>
+                        <li>点击"下一步"，然后点击"完成"。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>2. Linux系统</h3>
+                    <p>在Linux系统中安装CA证书：</p>
+                    <ul>
+                        <li>将CA证书复制到/usr/local/share/ca-certificates/目录；</li>
+                        <li>执行命令：sudo update-ca-certificates；</li>
+                        <li>重启浏览器即可生效。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>3. Android系统</h3>
+                    <p>在Android系统中安装CA证书：</p>
+                    <ul>
+                        <li>下载CA证书到手机；</li>
+                        <li>打开设置，搜索"证书"或"安全"；</li>
+                        <li>选择"安装证书"或"从存储设备安装"；</li>
+                        <li>找到并选择下载的CA证书文件；</li>
+                        <li>按照提示完成安装。</li>
+                    </ul>
+                </div>
+                <div class="tutorial-step">
+                    <h3>4. iOS系统</h3>
+                    <p>在iOS系统中安装CA证书：</p>
+                    <ul>
+                        <li>用Safari浏览器下载CA证书；</li>
+                        <li>打开设置，点击"已下载描述文件"；</li>
+                        <li>点击"安装"按钮；</li>
+                        <li>输入设备密码；</li>
+                        <li>前往设置-通用-关于本机-证书信任设置；</li>
+                        <li>找到新安装的CA证书并启用信任。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

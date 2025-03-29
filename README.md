@@ -86,7 +86,7 @@ qilin SSL 是一个基于 Flask 和 OpenSSL 开发的自签证书管理系统，
    python app.py
    ```
 
-4. 在浏览器中访问 `http://localhost:5000`
+4. 在浏览器中访问 `http://localhost:2002`
 
 5. 使用默认账号登录
    - 用户名：admin
