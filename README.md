@@ -3,6 +3,7 @@
 <div align="center">
   <img src="./static/images/qilinssl-logo.png" alt="qilin SSL Logo" width="150">
   <p>一款易用的自签证书管理系统</p>
+  <img src="./static/images/qilinssl-zt.png"  width="500">
 </div>
 
 ## 项目介绍
