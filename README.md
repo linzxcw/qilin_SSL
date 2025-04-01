@@ -35,13 +35,6 @@ qilin SSL 是一个基于 Flask 和 OpenSSL 开发的自签证书管理系统，
 - 管理反向代理服务的启动和停止
 
 
-## 系统架构
-
-### 技术栈
-- **后端框架**：Flask (Python)
-- **证书工具**：OpenSSL
-- **前端技术**：HTML, CSS, JavaScript, jQuery
-
 ## 安装指南
 
 ### 系统要求
@@ -55,7 +48,7 @@ qilin SSL 是一个基于 Flask 和 OpenSSL 开发的自签证书管理系统，
 
 3. 安装依赖包
    ```bash
-   pip install flask werkzeug
+   pip install -r requirements.txt
    ```
 
 4. 运行应用程序
