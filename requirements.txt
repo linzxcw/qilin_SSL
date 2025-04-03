@@ -1,0 +1,4 @@
+flask
+pystray
+Pillow
+werkzeug
